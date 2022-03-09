@@ -1,0 +1,98 @@
+---
+title: "566 Table- Homework 4"
+author: "Tanner Brooks"
+output: html_document
+knit: (function(input_file, encoding) {
+   out_dir <- 'docs';
+   rmarkdown::render(input_file,
+ encoding=encoding,
+ output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+---
+
+```{r}
+library("htmlwidgets")
+library("tidyverse")
+library("DT")
+
+nfl <- read.csv("Football2021.csv")
+nfl <- subset(nfl, select = -c(Pos, FPTS, DeffenseScore))
+names(nfl) <- c("Week", "Team_Abr", "Team", "Home_Game", "Score", "Opponent_Score", "Opponent",
+                "Tackle_For_Loss", "Sacks", "QB_Hits", "Defense_Interceptions", "Fumble_Recovery",
+                "Safeties", "Defense_TD's", "Return_TD's", "Points_Allowed", "Defensive_Fantasy_Points",
+                "Win", "Turn_Overs", "Score_Spread", "Pass_Yards", "Pass_TD's", "Offensive_Interceptions",
+                "Rush_Yards", "Rush_TD's", "Completed_Passes", "Recieving_Yards", "Recieving_TD's", "Fumbles_Lost",
+                "Offensive_Fantasy_Points", "Field_Goals_Made", "Field_Goals_Attempted", "Field_Goal_PercMade",
+                "Longest_Field_Goal", "Extra_Points_Made", "Extra_Points_Attempted", "Kicker_Fantasy_Points",
+                "Pass_Yards_Allowed", "Rush_Yards_Allowed", "Kicker_Fantasy_Pts_Allowed"
+)
+nfl = nfl %>% group_by(Team_Abr) %>% arrange(Week) %>% mutate(Team_Record = cumsum(Win))
+nfl$Win_Percentage <- nfl$Team_Record / nfl$Week
+nfl$Score <- round(nfl$Score)
+nfl$Week <- round(nfl$Week)
+nfl$Win_Percentage <- round(nfl$Win_Percentage, 2)
+nfl$Fantasy_Points <- nfl$Offensive_Fantasy_Points + nfl$Defensive_Fantasy_Points + nfl$Kicker_Fantasy_Points
+nfl$Division <- NA
+nfl$Division[nfl$Team_Abr %in% c("DEN", "KC", "LAC", "LV")] <- "AFC West"
+nfl$Division[nfl$Team_Abr %in% c("NE", "BUF", "MIA", "NYJ")] <- "AFC East"
+nfl$Division[nfl$Team_Abr %in% c("CIN", "PIT", "BAL", "CLE")] <- "AFC North"
+nfl$Division[nfl$Team_Abr %in% c("HOU", "IND", "JAX", "TEN")] <- "AFC South"
+nfl$Division[nfl$Team_Abr %in% c("ARI", "SEA", "SF", "LAR")] <- "NFC West"
+nfl$Division[nfl$Team_Abr %in% c("WAS", "DAL", "NYG", "PHI")] <- "NFC East"
+nfl$Division[nfl$Team_Abr %in% c("MIN", "GB", "DET", "CHI")] <- "NFC North"
+nfl$Division[nfl$Team_Abr %in% c("TB", "ATL", "NO", "CAR")] <- "NCF South"
+
+
+
+
+
+
+DT::datatable(data = nfl,
+              options = list(scrollX = TRUE, scrollY = "500px")
+)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# About the Plot
+
+## Data Source
+This data is a collection of all fantasy football and team statistics. This data can be found on this website: https://fantasydata.com/nfl/fantasy-football-leaders?position=3&season=2021&seasontype=1&scope=1&subscope=1&startweek=1&endweek=1&aggregatescope=1&range=1. I had to download each week's data html output, then clean it up to a csv file to contain all the statistics per each team for the entire year of 2021.
+
+
+
+
+## What I want to Convey in the Table
+For this assignment I want to provide an interactive table that contains all the raw data of each of the NFL team's statistics. This allows the user to see the breakdown of each team's statistics such as total offensive passing yards, running yards, touchdowns and total defensive passing yards allowed, running yards allowed and touchdowns allowed. The table gives the user an in-depth and comprehensive analysis into comparing teams at all different levels.
+
+
+
+
+
+
+
+## Functionality Put Into the Table and Why
+This table has a search component that has the capacity to search all the data in the table and filter on what is contained in what was inputted. This allows the user to easily filter on anything they would like to single out. As an example, the user can search "broncos" and get the entire 2021 statistics pertaining to the team. This table also has the capability to show between 10 to 100 rows at a time so that the user has a better experience when ingesting the data from the table. Since this table is interactive, it highlights the row that the mouse passes over. Also a user can sort by any column to therefore allowing a quick comparison on that particular statistic of interest.
+
+
+
+
+## Formatting Put Into the Table and Why
+Since this is a very large table I wanted the user to be able to scroll through it while still seeing all the column names. To add this into the table I had to size the Y-axis scroll bar to an optimal size which I determined to be 500 pixels. This table is also able to highlight the row of which a user passes their mouse through so that it is easier to navigate the table.
+
+
+
